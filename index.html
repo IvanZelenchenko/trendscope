@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TrendScope — влияние TikTok на стиль одежды</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Unbounded:wght@600;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<style>
+:root{
+  --accent:#fe2c55; --accent2:#25f4ee; --accent3:#a855f7;
+  --dark:#0a0b0f; --dark2:#12141c; --dark3:#1a1d28;
+  --light:#f7f7fb; --muted:#8b90a0; --card:#ffffff;
+  --radius:24px;
+  --grad: linear-gradient(135deg, var(--accent), #ff7aa2 40%, var(--accent2));
+  --shadow-sm: 0 4px 16px rgba(17,19,24,.06);
+  --shadow-md: 0 10px 32px rgba(17,19,24,.1);
+  --shadow-lg: 0 24px 60px rgba(17,19,24,.16);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Inter',system-ui,sans-serif;background:var(--light);color:var(--dark);
+  line-height:1.55;overflow-x:hidden;-webkit-font-smoothing:antialiased;
+}
+body::before{
+  content:'';position:fixed;inset:0;z-index:-1;
+  background:
+    radial-gradient(circle at 10% 10%, rgba(254,44,85,.06) 0%, transparent 35%),
+    radial-gradient(circle at 90% 90%, rgba(37,244,238,.06) 0%, transparent 35%),
+    radial-gradient(circle at 50% 50%, rgba(168,85,247,.03) 0%, transparent 50%);
+  pointer-events:none;
+}
+/* NAV */
+nav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(10,11,15,.82);
+  backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);
+  display:flex;align-items:center;gap:6px;padding:14px 32px;flex-wrap:wrap;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+nav .logo{
+  font-family:'Unbounded',sans-serif;font-weight:900;font-size:20px;
+  margin-right:auto;color:#fff;letter-spacing:-.5px;display:flex;align-items:center;gap:6px;
+}
+nav .logo span{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+nav a{
+  color:#cfd3dc;text-decoration:none;font-size:14px;font-weight:600;
+  padding:9px 16px;border-radius:99px;transition:.25s cubic-bezier(.4,0,.2,1);cursor:pointer;
+}
+nav a:hover{color:#fff;background:rgba(255,255,255,.08)}
+nav a.active{background:var(--accent);color:#fff;box-shadow:0 4px 20px rgba(254,44,85,.5)}
+
+/* SECTIONS */
+section{max-width:1120px;margin:0 auto;padding:88px 24px;display:none;position:relative}
+section.show{display:block;animation:fadeUp .5s cubic-bezier(.4,0,.2,1)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
+.kicker{
+  display:inline-flex;align-items:center;gap:8px;background:var(--grad);color:#fff;
+  font-size:11px;font-weight:800;letter-spacing:.15em;text-transform:uppercase;
+  padding:8px 18px;border-radius:99px;margin-bottom:22px;box-shadow:0 6px 20px rgba(254,44,85,.35);
+}
+.kicker::before{content:'';width:6px;height:6px;border-radius:50%;background:#fff;box-shadow:0 0 8px #fff;animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+h1{font-family:'Unbounded',sans-serif;font-size:clamp(34px,5.5vw,64px);font-weight:900;line-height:1.02;margin-bottom:24px;letter-spacing:-2px}
+h2{font-family:'Unbounded',sans-serif;font-size:clamp(26px,3.8vw,40px);font-weight:900;margin-bottom:18px;letter-spacing:-1px;position:relative;display:inline-block}
+h2::after{content:'';display:block;width:80px;height:5px;background:var(--grad);border-radius:3px;margin-top:14px}
+h3{font-weight:800}
+.grad{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{font-size:18px;color:#4b5563;max-width:780px;line-height:1.7}
+
+/* HERO (ИСПРАВЛЕНО) */
+.hero{
+  max-width: 100% !important;
+  width: 100%;
+  background:var(--dark);
+  color:#fff;
+  margin:0;
+  padding:120px 24px 110px;
+  position:relative;
+  overflow:hidden;
+  display: flex;
+  justify-content: center;
+}
+.hero::before{
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(800px 400px at 15% 0%, rgba(37,244,238,.22), transparent 60%),
+    radial-gradient(700px 500px at 85% 20%, rgba(254,44,85,.35), transparent 60%),
+    radial-gradient(600px 600px at 50% 100%, rgba(168,85,247,.18), transparent 60%);
+  pointer-events:none;
+}
+/* Добавляем красивую сетку на фон, чтобы заполнить пустоту справа */
+.hero::after{
+  content:'';position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px);
+  background-size:60px 60px;
+  mask-image:radial-gradient(ellipse at center, black 40%, transparent 80%);
+  -webkit-mask-image:radial-gradient(ellipse at center, black 40%, transparent 80%);
+  pointer-events:none;
+}
+.hero-inner{
+  max-width:1120px;
+  width: 100%;
+  margin:0 auto;
+  position:relative;
+  z-index:1;
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 40px;
+  align-items: center;
+}
+@media (max-width: 900px) {
+  .hero-inner { grid-template-columns: 1fr; }
+}
+.hero .lead{color:#c9cdd6}
+.hero .lead b{color:#fff}
+.hero h1 .grad{
+  background:linear-gradient(135deg,var(--accent),#ff7aa2 30%,var(--accent2) 100%);
+  -webkit-background-clip:text;background-clip:text;
+  filter:drop-shadow(0 0 30px rgba(254,44,85,.4));
+}
+
+/* BUTTONS */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;border:none;cursor:pointer;
+  font-family:inherit;font-weight:800;font-size:16px;padding:16px 34px;border-radius:16px;
+  background:linear-gradient(135deg,var(--accent),#ff5c7a);color:#fff;
+  box-shadow:0 12px 32px rgba(254,44,85,.38);transition:.3s cubic-bezier(.4,0,.2,1);
+  text-decoration:none;position:relative;overflow:hidden;
+}
+.btn::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);transition:.6s}
+.btn:hover::before{left:100%}
+.btn:hover{transform:translateY(-3px);box-shadow:0 18px 40px rgba(254,44,85,.5)}
+.btn.ghost{background:transparent;color:var(--dark);box-shadow:none;border:2px solid #d1d5db}
+.btn.ghost:hover{background:#f3f4f6;border-color:var(--accent);color:var(--accent)}
+.btn.hero-ghost{background:rgba(255,255,255,.06);color:#fff;border:1.5px solid rgba(255,255,255,.2);backdrop-filter:blur(10px)}
+.btn.hero-ghost:hover{background:rgba(255,255,255,.12);border-color:var(--accent2)}
+.btn.big{font-size:20px;padding:22px 52px;border-radius:22px;animation:pulse 2.5s infinite}
+.btn.small{font-size:14px;padding:11px 20px;border-radius:12px}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(254,44,85,.5),0 12px 32px rgba(254,44,85,.38)}50%{box-shadow:0 0 0 24px rgba(254,44,85,0),0 12px 32px rgba(254,44,85,.38)}}
+
+/* CARDS */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:26px;margin-top:40px}
+.style-card{
+  background:var(--card);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow-sm);
+  cursor:pointer;transition:.4s cubic-bezier(.4,0,.2,1);position:relative;isolation:isolate;
+}
+.style-card::before{
+  content:'';position:absolute;inset:0;border-radius:var(--radius);padding:2px;background:var(--grad);
+  -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:.35s;pointer-events:none;z-index:2;
+}
+.style-card:hover{transform:translateY(-10px);box-shadow:0 28px 60px rgba(17,19,24,.18)}
+.style-card:hover::before{opacity:1}
+.style-card .img-wrap{overflow:hidden;position:relative}
+.style-card img{width:100%;height:290px;object-fit:cover;display:block;background:#e9e9ee;transition:.6s cubic-bezier(.4,0,.2,1)}
+.style-card:hover img{transform:scale(1.08)}
+.style-card .body{padding:20px 22px 24px;background:#fff;position:relative}
+.style-card h3{font-size:20px;margin-bottom:8px;font-weight:800;letter-spacing:-.3px}
+.style-card p{font-size:14px;color:var(--muted);line-height:1.6}
+.style-card .more{margin-top:14px;color:var(--accent);font-weight:800;font-size:13px;display:inline-flex;align-items:center;gap:6px}
+.style-card .more::after{content:'→';transition:.3s}
+.style-card:hover .more::after{transform:translateX(5px)}
+
+/* FIX CARDS "HOW IT WORKS" */
+#sec-home2 { padding: 60px 24px; }
+#sec-home2 .cards { margin-top: 20px; gap: 20px; }
+#sec-home2 .panel { padding: 24px; text-align: left; }
+
+/* STEPS */
+.steps{counter-reset:step;margin-top:40px;display:grid;gap:20px}
+.step{background:var(--card);border-radius:var(--radius);padding:24px 26px 24px 92px;position:relative;box-shadow:var(--shadow-sm);transition:.3s;border-left:4px solid transparent}
+.step:hover{transform:translateX(8px);border-left-color:var(--accent);box-shadow:0 14px 36px rgba(17,19,24,.12)}
+.step::before{
+  counter-increment:step;content:counter(step);position:absolute;left:24px;top:24px;width:48px;height:48px;
+  border-radius:14px;background:var(--grad);color:#fff;font-weight:900;display:grid;place-items:center;
+  font-size:20px;box-shadow:0 8px 20px rgba(254,44,85,.35);font-family:'Unbounded',sans-serif;
+}
+.step b{display:block;margin-bottom:6px;font-size:17px}
+
+/* PANELS */
+.panel{
+  background:rgba(255,255,255,.85);backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);
+  border-radius:var(--radius);box-shadow:var(--shadow-md);padding:38px;max-width:720px;margin:36px auto 0;
+  border:1px solid rgba(255,255,255,.9);
+}
+.qtext{font-size:20px;font-weight:800;margin-bottom:22px;line-height:1.4}
+.opt{display:block;width:100%;text-align:left;background:#f8f9fb;border:2px solid transparent;border-radius:14px;padding:15px 20px;font-size:15px;font-family:inherit;cursor:pointer;margin-bottom:10px;transition:.2s;font-weight:500}
+.opt:hover{border-color:var(--accent2);background:#f0fdff;transform:translateX(6px)}
+.opt.sel{border-color:var(--accent);background:#fff0f3;font-weight:700;box-shadow:0 6px 18px rgba(254,44,85,.15)}
+.bar{height:10px;background:#e5e7eb;border-radius:99px;overflow:hidden;margin-bottom:28px}
+.bar i{display:block;height:100%;background:var(--grad);transition:.5s cubic-bezier(.4,0,.2,1);border-radius:99px}
+.hidden{display:none!important}
+.muted{color:var(--muted);font-size:14px}
+.resname{font-family:'Unbounded',sans-serif;font-size:38px;font-weight:900;margin:8px 0;letter-spacing:-1px}
+.tag{display:inline-block;padding:7px 16px;border-radius:99px;font-size:13px;font-weight:800}
+.tag.strong{background:#fee2e2;color:#b91c1c}
+.tag.mid{background:#fef3c7;color:#b45309}
+.tag.low{background:#dcfce7;color:#15803d}
+
+/* STATS */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:20px;margin:34px 0}
+.stat{background:var(--card);border-radius:20px;padding:26px;box-shadow:var(--shadow-sm);transition:.3s;border-top:3px solid transparent;position:relative;overflow:hidden}
+.stat::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--grad);transform:scaleX(0);transform-origin:left;transition:.4s}
+.stat:hover{transform:translateY(-5px);box-shadow:var(--shadow-md)}
+.stat:hover::before{transform:scaleX(1)}
+.stat b{font-family:'Unbounded',sans-serif;font-size:34px;display:block;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;line-height:1.1}
+.stat span{font-size:13px;color:var(--muted);font-weight:500}
+
+/* CHARTS */
+.charts{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:14px}
+@media(max-width:760px){.charts{grid-template-columns:1fr}}
+.charts .panel{max-width:none;margin:0;padding:26px}
+
+/* TABLE */
+table{width:100%;border-collapse:collapse;font-size:14px;margin-top:14px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:var(--shadow-sm)}
+th{background:var(--dark);color:#fff;text-align:left;padding:14px 16px;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.08em}
+td{padding:13px 16px;border-bottom:1px solid #f3f4f6}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafafa}
+
+/* INPUTS */
+input[type=text],input[type=password],select{
+  width:100%;padding:15px 18px;border:2px solid #e5e7eb;border-radius:14px;
+  font-size:15px;font-family:inherit;margin-bottom:14px;transition:.2s;background:#fff;
+}
+input:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px rgba(254,44,85,.1)}
+.check{display:flex;gap:12px;align-items:flex-start;font-size:14px;color:#374151;margin:18px 0;padding:16px;background:#f9fafb;border-radius:14px;line-height:1.5}
+
+/* ACCORDION (FAQ, METHOD) */
+.accordion{margin-top:26px;display:grid;gap:10px}
+.acc-item{background:#fff;border-radius:16px;box-shadow:var(--shadow-sm);overflow:hidden;transition:.3s}
+.acc-head{padding:20px 24px;cursor:pointer;font-weight:700;font-size:16px;display:flex;justify-content:space-between;align-items:center;transition:.2s;user-select:none}
+.acc-head:hover{background:#fafafa}
+.acc-head::after{content:'+';font-size:24px;font-weight:300;color:var(--accent);transition:.3s}
+.acc-item.open .acc-head::after{transform:rotate(45deg)}
+.acc-body{max-height:0;overflow:hidden;transition:.4s cubic-bezier(.4,0,.2,1);padding:0 24px}
+.acc-item.open .acc-body{max-height:800px;padding:0 24px 22px}
+.acc-body p{color:#4b5563;line-height:1.7;margin-bottom:8px}
+.acc-body ul{padding-left:20px;line-height:1.8;color:#4b5563}
+
+/* SHARE MODAL */
+.share-modal{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(8px)}
+.share-modal.show{display:flex;animation:fade .3s}
+.share-card{background:#fff;border-radius:24px;padding:32px;max-width:440px;width:100%;text-align:center;position:relative}
+.share-card .close{position:absolute;top:14px;right:14px;background:#f3f4f6;border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:18px;font-weight:700;color:#6b7280}
+.share-preview{background:var(--grad);border-radius:20px;padding:32px 24px;color:#fff;margin-bottom:20px;position:relative;overflow:hidden}
+.share-preview::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle at 80% 20%, rgba(255,255,255,.3), transparent 50%)}
+.share-preview h3{font-family:'Unbounded',sans-serif;font-size:28px;margin-bottom:8px;position:relative}
+.share-preview p{font-size:14px;opacity:.9;position:relative}
+.share-preview .share-style{font-family:'Unbounded',sans-serif;font-size:36px;font-weight:900;margin:16px 0 8px;position:relative}
+.share-buttons{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+
+/* FOOTER */
+footer{background:var(--dark);color:#8b90a0;text-align:center;padding:40px 24px;font-size:13px;margin-top:60px;position:relative}
+footer::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--grad)}
+footer .logo{font-family:'Unbounded',sans-serif;color:#fff;font-size:18px;font-weight:900;margin-bottom:8px}
+footer .logo span{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+footer a{color:#8b90a0;text-decoration:none;margin:0 8px}
+footer a:hover{color:var(--accent2)}
+.note{background:#fff7ed;border:1px solid #fed7aa;border-radius:16px;padding:16px 20px;font-size:14px;margin-top:24px;line-height:1.6}
+::-webkit-scrollbar{width:10px}
+::-webkit-scrollbar-track{background:#f1f1f1}
+::-webkit-scrollbar-thumb{background:linear-gradient(var(--accent),var(--accent2));border-radius:5px}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">Trend<span>Scope</span></div>
+  <a data-sec="home" class="active">Главная</a>
+  <a data-sec="styles">Стили</a>
+  <a data-sec="trend">Тренды</a>
+  <a data-sec="method">Методология</a>
+  <a data-sec="faq">FAQ</a>
+  <a data-sec="admin">Админ</a>
+</nav>
+
+<!-- ГЛАВНАЯ -->
+<section id="sec-home" class="hero">
+  <div class="hero-inner">
+    <div>
+      <span class="kicker">Научно-исследовательский проект</span>
+      <h1>Влияние TikTok на <span class="grad">стиль одежды</span> людей</h1>
+      <p class="lead">Этот сайт создан в научных целях. Мы изучаем, действительно ли короткие видео и тренды в TikTok меняют личный стиль человека — или мода живёт своей жизнью независимо от ленты рекомендаций.</p>
+      <p class="lead" style="margin-top:16px">Проходя опрос, вы получаете двойную пользу: админы проекта получают обезличенные данные для исследования, а вам сайт сразу выдаёт <b>готовый портрет вашего стиля</b> — с названием, описанием и честным ответом на вопрос «повлиял ли TikTok на ваш гардероб».</p>
+      <div style="margin-top:44px;display:flex;gap:16px;flex-wrap:wrap">
+        <button class="btn big" onclick="go('survey')">📊 Пройти опрос</button>
+        <button class="btn hero-ghost" onclick="go('styles')">Посмотреть стили</button>
+      </div>
+    </div>
+    <!-- Правая колонка (пустая, заполняется фоновой сеткой) -->
+  </div>
+</section>
+
+<section id="sec-home2">
+  <h2>Как это работает</h2>
+  <div class="cards">
+    <div class="panel" style="margin:0"><h3 style="margin-bottom:8px">1 · Отвечаете на 12 вопросов</h3><p class="muted">Опрос занимает 3–4 минуты. Есть демографические вопросы, шкала Лайкерта и контрольная группа «не пользуюсь TikTok» — это нужно для научной чистоты.</p></div>
+    <div class="panel" style="margin:0"><h3 style="margin-bottom:8px">2 · ИИ собирает портрет стиля</h3><p class="muted">Алгоритм сопоставляет ваши ответы и формирует название, описание стиля и оценку влияния TikTok на него.</p></div>
+    <div class="panel" style="margin:0"><h3 style="margin-bottom:8px">3 · Результат на руки и в статистику</h3><p class="muted">Вы видите свой портрет, можете поделиться картинкой в соцсетях, а админы — общую статистику и диаграммы.</p></div>
+  </div>
+</section>
+
+<!-- СТИЛИ -->
+<section id="sec-styles">
+  <span class="kicker">Стили</span>
+  <h2>Какие стили одежды существуют сейчас</h2>
+  <p class="lead">Нажмите на карточку — внутри образец, история стиля, иконы и хэштеги для поиска в TikTok.</p>
+  <div class="cards" id="styleCards"></div>
+</section>
+
+<!-- ТРЕНДЫ -->
+<section id="sec-trend">
+  <span class="kicker">Механика трендов</span>
+  <h2>Как тренд становится массовым?</h2>
+  <p class="lead">Путь от случайного видео до «все носят одно и то же» обычно выглядит так:</p>
+  <div class="steps">
+    <div class="step"><b>Зарождение</b>Стиль или вещь появляются у небольшой группы — субкультуры, одного инфлюенсера, сцены или города.</div>
+    <div class="step"><b>Попадание в TikTok</b>Видео попадает в ленту рекомендаций, алгоритм замечает вовлечённость и показывает ролик всё шире.</div>
+    <div class="step"><b>Вирусный разгон</b>Другие блогеры копируют образ, появляются челленджи, «GRWM» и хэштеги.</div>
+    <div class="step"><b>Экономическая волна</b>Маркетплейсы и масс-маркет выпускают аналоги по низким ценам.</div>
+    <div class="step"><b>Массовость</b>Стиль носят уже не только подписчики инфлюенсеров, но и прохожие на улице.</div>
+    <div class="step"><b>Спад или классика</b>Через 1–3 месяца внимание алгоритма смещается: что-то уходит, что-то оседает в базовом гардеробе.</div>
+  </div>
+</section>
+
+<!-- МЕТОДОЛОГИЯ -->
+<section id="sec-method">
+  <span class="kicker">Методология</span>
+  <h2>Как мы считаем данные</h2>
+  <p class="lead">Прозрачность исследования — важная часть научного проекта. Ниже — ответы на вопросы «откуда данные», «как считается влияние» и «какие ограничения».</p>
+  <div class="accordion" id="methodAccordion"></div>
+</section>
+
+<!-- FAQ -->
+<section id="sec-faq">
+  <span class="kicker">FAQ</span>
+  <h2>Частые вопросы</h2>
+  <p class="lead">Про приватность, данные и результаты исследования.</p>
+  <div class="accordion" id="faqAccordion"></div>
+  <div class="panel" style="text-align:center;margin-top:32px">
+    <h3 style="margin-bottom:8px">Оставить отзыв или предложение</h3>
+    <p class="muted" style="margin-bottom:18px">Помогите улучшить проект — напишите, что понравилось, а что можно сделать лучше.</p>
+    <button class="btn" onclick="openFeedback()">💬 Оставить отзыв</button>
+  </div>
+</section>
+
+<!-- ОПРОС -->
+<section id="sec-survey">
+  <span class="kicker">Опрос</span>
+  <h2>Узнайте свой стиль и влияние TikTok</h2>
+  <p class="lead">12 вопросов, около 3–4 минут. По результатам ИИ определит ваш стиль одежды и оценит, повлиял ли TikTok на то, как вы одеваетесь.</p>
+  <div style="text-align:center;margin-top:36px">
+    <button class="btn big" onclick="startSurvey()">Пройти опрос →</button>
+    <p class="muted" style="margin-top:14px" id="progressHint"></p>
+  </div>
+
+  <div class="panel hidden" id="surveyPanel">
+    <div class="bar"><i id="qbar" style="width:0%"></i></div>
+    <div class="qtext" id="qtext"></div>
+    <div id="qopts"></div>
+    <div style="display:flex;justify-content:space-between;margin-top:22px;gap:12px">
+      <button class="btn ghost" onclick="prevQ()">← Назад</button>
+      <button class="btn" id="nextBtn" onclick="nextQ()">Далее →</button>
+    </div>
+    <p class="muted" style="margin-top:12px;text-align:center" id="progressPct">0%</p>
+  </div>
+
+  <div class="panel hidden" id="savePanel">
+    <h3 style="margin-bottom:8px">Сохранить результат?</h3>
+    <label class="check"><input type="checkbox" id="anonBox" checked onchange="anonToggle()"> <span><b>Анонимно (рекомендуется)</b> — результат показывается только вам. Админы не получат ваши ответы.</span></label>
+    <div id="nameBlock" class="hidden">
+      <input type="text" id="nameInput" placeholder="Ваше имя или ник" maxlength="30">
+      <p class="muted">Результат сохранится в статистике с датой прохождения: имя, стиль и вердикт.</p>
+    </div>
+    <button class="btn" style="width:100%;margin-top:14px" onclick="saveResult()">Сохранить и завершить</button>
+  </div>
+
+  <div class="panel hidden" id="resultPanel"></div>
+</section>
+
+<!-- АДМИН -->
+<section id="sec-admin">
+  <span class="kicker">Админ-панель</span>
+  <h2>Статистика прохождений</h2>
+  <div class="panel" id="loginPanel" style="max-width:440px">
+    <h3 style="margin-bottom:16px">Вход</h3>
+    <input type="text" id="login" placeholder="Логин">
+    <input type="password" id="pass" placeholder="Пароль">
+    <button class="btn" style="width:100%" onclick="adminLogin()">Войти</button>
+    <p class="muted" style="margin-top:12px">Демо-доступ: admin / style2026</p>
+  </div>
+  <div id="dash" class="hidden">
+    <div class="stat-grid" id="statGrid"></div>
+    <div class="charts">
+      <div class="panel" style="margin:0"><h3 style="margin-bottom:14px;font-size:18px">Соотношение стилей</h3><canvas id="chartStyles"></canvas></div>
+      <div class="panel" style="margin:0"><h3 style="margin-bottom:14px;font-size:18px">Влияние TikTok</h3><canvas id="chartInfluence"></canvas></div>
+    </div>
+    <div class="charts" style="margin-top:24px">
+      <div class="panel" style="margin:0"><h3 style="margin-bottom:14px;font-size:18px">Тепловая карта: Стиль × Влияние</h3><canvas id="chartHeatmap"></canvas></div>
+      <div class="panel" style="margin:0"><h3 style="margin-bottom:14px;font-size:18px">Источники трендов</h3><canvas id="chartSources"></canvas></div>
+    </div>
+    <h3 style="margin-top:40px;margin-bottom:8px">Журнал прохождений</h3>
+    <div style="overflow-x:auto"><table id="resultsTable"></table></div>
+    <div style="display:flex;gap:12px;margin-top:24px;flex-wrap:wrap">
+      <button class="btn" onclick="exportCSV()">Скачать CSV</button>
+      <button class="btn ghost" onclick="clearData()">Очистить статистику</button>
+      <button class="btn ghost" onclick="adminLogout()">Выйти</button>
+    </div>
+    <div class="note">⚠️ Данные хранятся в Google Таблице и доступны со всех устройств. Анонимные прохождения не сохраняются.</div>
+  </div>
+</section>
+
+<!-- SHARE MODAL -->
+<div class="share-modal" id="shareModal">
+  <div class="share-card">
+    <button class="close" onclick="closeShare()">✕</button>
+    <div class="share-preview" id="sharePreview">
+      <h3>Мой стиль по версии TrendScope</h3>
+      <div class="share-style" id="shareStyleName">—</div>
+      <p id="shareInfluence">—</p>
+    </div>
+    <p class="muted" style="margin-bottom:16px">Поделитесь результатом в соцсетях:</p>
+    <div class="share-buttons">
+      <button class="btn small" onclick="downloadShare()">💾 Скачать картинку</button>
+      <button class="btn small ghost" onclick="copyShareText()">📋 Копировать текст</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="logo">Trend<span>Scope</span></div>
+  Научный проект «Влияние TikTok на стиль одежды» · фото: открытые источники<br>
+  <a onclick="go('method')">Методология</a> · <a onclick="go('faq')">FAQ</a> · <a onclick="openFeedback()">Обратная связь</a>
+</footer>
+
+<script>
+/* ================= НАСТРОЙКИ ================= */
+// ВСТАВЬТЕ СЮДА URL ВАШЕГО ВЕБ-ПРИЛОЖЕНИЯ ИЗ GOOGLE APPS SCRIPT
+// Пример: "https://script.google.com/macros/s/AKfycb.../exec"
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxMPG9ESrB2s22Lg2vjFOsI2OtJHd2KBPIQEpskWdA92Q2vqbBEaU2mMyHPr8AsAP-HdA/exec";
+
+const FEEDBACK_FORM_ID = ""; // Вставьте ID Google Формы (или оставьте пустым)
+const GA_ID = ""; // Вставьте Google Analytics Measurement ID (G-XXXXXXX), если есть
+
+/* Google Analytics (если указан) */
+if (GA_ID) {
+  const s = document.createElement('script');
+  s.async = true;
+  s.src = 'https://www.googletagmanager.com/gtag/js?id=' + GA_ID;
+  document.head.appendChild(s);
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = function(){dataLayer.push(arguments);};
+  gtag('js', new Date());
+  gtag('config', GA_ID);
+}
+
+/* ================= КОНФИГ ИИ ================= */
+const AI_CONFIG = { apiKey: "", endpoint: "https://api.openai.com/v1/chat/completions", model: "gpt-4o-mini" };
+
+/* ================= СТИЛИ ================= */
+const STYLES = [
+ {id:"streetwear", name:"Стритвир", img:"images/streetwear.jpg", desc:"Уличная мода, выросшая из скейтерской и хип-хоп культуры.",
+  features:["Оверсайз-худи, широкие джинсы, кроссовки как центр образа","Слои: футболка + флиска + куртка крупного кроя","Ключевая роль брендов и логотипов","Аксессуары: кепка, рюкзак, массивные украшения"],
+  history:"Зародился в 80-х в Нью-Йорке и Лос-Анджелесе как одежда скейтеров и хип-хоп-исполнителей. В 2010-х стал мейнстримом благодаря Supreme, Off-White и коллаборациям с люксовыми брендами.",
+  icons:["ASAP Rocky","Travis Scott","Billie Eilish (ранняя)"],
+  hashtags:["#streetwear","#streetstyle","#outfitinspo","#hypebeast"]},
+ {id:"y2k", name:"Y2K", img:"images/y2k.jpg", desc:"Эстетика рубежа 90-х и 2000-х: блеск, глянец, оптимизм будущего.",
+  features:["Джинсы и юбки с низкой посадкой, кроп-топы","Блестящие, металлические и лаковые ткани","Мини-сумки, очки-«бабочки», стразы","Платформы, массивные кроссовки"],
+  history:"Вернулся в 2020–2021 годах благодаря TikTok и ностальгии по 2000-м. Источники — Destiny's Child, Пэрис Хилтон, фильмы «Матрица» и «Блондинка в законе».",
+  icons:["Пэрис Хилтон","Бритни Спирс","Dua Lipa"],
+  hashtags:["#y2k","#y2kaesthetic","#2000s","#y2kfashion"]},
+ {id:"oldmoney", name:"Old money", img:"images/oldmoney.jpg", desc:"«Тихая роскошь»: классика, которая выглядит дорого без логотипов.",
+  features:["Пиджаки, кашемир, поло, брюки со стрелками","Нейтральная палитра: беж, белый, тёмно-синий","Идеальная посадка важнее трендов","Классическая обувь: лодочки, лоферы, оксфорды"],
+  history:"Тренд «тихой роскоши» популяризировали сериалы вроде «Наследников» и эстетика старых денег. В TikTok получил второе дыхание в 2022–2023.",
+  icons:["Кэролайн Кеннеди","Гвинет Пэлтроу","Кейт Миддлтон"],
+  hashtags:["#oldmoney","#quietluxury","#oldmoneyaesthetic","#classyoutfit"]},
+ {id:"grunge", name:"Гранж", img:"images/grunge.jpg", desc:"Небрежный бунт 90-х: наследие рок-сцены Сиэтла.",
+  features:["Фланелевые рубашки, рваные джинсы, растянутые футболки","Грубые ботинки: мартинсы и гриндерсы","Тёмная приглушённая палитра","Аксессуары: чокеры, заклёпки, булавки"],
+  history:"Появился в Сиэтле в конце 80-х вместе с Nirvana и Pearl Jam. В 2010-х вернулся через Сен-Лоран и Рианну. В TikTok — эстетика #grungestyle.",
+  icons:["Курт Кобейн","Кортни Лав","Рианна (эпоха 2013)"],
+  hashtags:["#grunge","#grungeaesthetic","#90sgrunge","#grungeoutfit"]},
+ {id:"coquette", name:"Coquette", img:"images/coquette.jpg", desc:"Романтичная «кокетка»: банты, кружево, розовый и нежность.",
+  features:["Платья и юбки с воланами, кружевные блузки","Банты в волосах и на одежде — главный маркер","Пастельная палитра, жемчуг, мелкие украшения","Винтажный шарм: корсеты, балетки"],
+  history:"Всплеск в 2022 году благодаря эстетике «coquettecore» и блогерам вроде Лизы Сейр. Смесь французского рококо, балета и винтажной женственности.",
+  icons:["Лана Дель Рей","Лиза Сейр","Сидни Суини"],
+  hashtags:["#coquette","#coquetteaesthetic","#coquettecore","#balletcore"]},
+ {id:"minimalism", name:"Минимализм", img:"images/minimalism.jpg", desc:"Меньше — лучше: базовые вещи, чистые линии, никаких лишних деталей.",
+  features:["Однотонные базовые вещи идеальной посадки","Палитра: белый, чёрный, серый, беж","Минимум аксессуаров, качественные ткани","Сочетаемость: любая вещь с любой"],
+  history:"Сформировался в 90-х (Jil Sander, Calvin Klein) и вернулся в 2010-х как «normcore». В TikTok — эстетика #minimaliststyle.",
+  icons:["Кэролин Бессет-Кеннеди","Анджелина Джоли","Виктория Бекхэм"],
+  hashtags:["#minimalism","#minimaliststyle","#capsulewardrobe","#neutrals"]},
+ {id:"dark", name:"Дарк-эстетик", img:"images/dark.jpg", desc:"Тотал-блэк и мрачная эстетика: от готов до корейского стрита.",
+  features:["Чёрный как основа, акценты — серебро и тёмно-красный","Деним, кожа, металл, цепи","Оверсайз-силуэты, многослойность","Макияж с готическим настроением"],
+  history:"Наследие готической субкультуры 80-х. В 2020-х смешался с корейским стритом и эстетикой «dark academia».",
+  icons:["Киллиан Мёрфи","Тильда Суинтон","Билла Скарсгард"],
+  hashtags:["#darkaesthetic","#darkfashion","#gothicstyle","#darkacademia"]},
+ {id:"sportchic", name:"Спорт-шик", img:"images/sportchic.jpg", desc:"Athleisure: спортивная одежда в повседневной жизни.",
+  features:["Легинсы, байкеры, кроссовки, оверсайз-худи","Техничные ткани, лампасы, ветровки","Смесь спортзала и города","Бренды стрит-спорта как статус"],
+  history:"Термин появился в 2010-х вместе с бумом фитнеса и йоги. В TikTok — эстетика #athleisure и #gymfit.",
+  icons:["Кендалл Дженнер","Хейли Бибер","Джиджи Хадид"],
+  hashtags:["#athleisure","#sportychic","#gymfit","#activewear"]}
+];
+
+/* ================= НАВИГАЦИЯ ================= */
+function go(sec){
+  document.querySelectorAll('section').forEach(s=>s.classList.remove('show'));
+  const ids={home:['sec-home','sec-home2'],styles:['sec-styles'],trend:['sec-trend'],method:['sec-method'],faq:['sec-faq'],survey:['sec-survey'],admin:['sec-admin']};
+  (ids[sec]||ids.home).forEach(id=>document.getElementById(id)?.classList.add('show'));
+  document.querySelectorAll('nav a').forEach(a=>a.classList.toggle('active',a.dataset.sec===sec));
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+document.querySelectorAll('nav a').forEach(a=>a.onclick=()=>go(a.dataset.sec));
+
+/* ================= КАРТОЧКИ СТИЛЕЙ ================= */
+const cardsBox=document.getElementById('styleCards');
+STYLES.forEach(st=>{
+  const d=document.createElement('div');d.className='style-card';d.onclick=()=>openStyle(st.id);
+  d.innerHTML='<div class="img-wrap"><img src="'+st.img+'" alt="'+st.name+'"></div><div class="body"><h3>'+st.name+'</h3><p>'+st.desc+'</p><div class="more">Подробнее</div></div>';
+  cardsBox.appendChild(d);
+});
+function openStyle(id){
+  const st=STYLES.find(s=>s.id===id);
+  const box=document.getElementById('resultPanel');
+  box.classList.remove('hidden');
+  box.innerHTML='<span class="kicker">Стиль</span><div class="resname">'+st.name+'</div>'+
+    '<img src="'+st.img+'" style="width:100%;max-width:420px;border-radius:16px;margin:14px 0" alt="'+st.name+'">'+
+    '<p>'+st.desc+'</p>'+
+    '<h3 style="margin:22px 0 10px">История стиля</h3><p class="muted" style="line-height:1.7">'+st.history+'</p>'+
+    '<h3 style="margin:22px 0 10px">Особенности</h3><ul style="padding-left:22px;line-height:1.8">'+st.features.map(f=>'<li>'+f+'</li>').join('')+'</ul>'+
+    '<h3 style="margin:22px 0 10px">Иконы стиля</h3><p class="muted">'+st.icons.join(' · ')+'</p>'+
+    '<h3 style="margin:22px 0 10px">Хэштеги в TikTok</h3><p style="color:var(--accent);font-weight:700;font-size:14px">'+st.hashtags.join(' ')+'</p>'+
+    '<p class="muted" style="margin-top:20px"><button class="btn ghost" onclick="closePanel()">← Закрыть</button></p>';
+  go('survey');window.scrollTo({top:0,behavior:'smooth'});
+}
+function closePanel(){document.getElementById('resultPanel').classList.add('hidden');}
+
+/* ================= АККОРДЕОНЫ (МЕТОДОЛОГИЯ, FAQ) ================= */
+const METHOD_ITEMS = [
+ {q:"Откуда вы берёте данные?", a:"Все ответы приходят с этой страницы: пользователи проходят опрос, снимают галочку «Анонимно», вводят имя — и данные отправляются в Google Таблицу через Google Apps Script. Мы не используем сторонние базы и не покупаем данные."},
+ {q:"Как считается балл влияния TikTok?", a:"Влияние складывается из 4 вопросов: время в TikTok (0–3), сохранение видео с образами (0–3), перестраивание гардероба после трендов (0–3), покупка вещи из TikTok (0–3). Максимум — 12 баллов:<br><b>0–3</b> — слабое/нет влияния;<br><b>4–6</b> — заметное;<br><b>7–12</b> — сильное."},
+ {q:"Зачем вопросы про возраст, пол и бюджет?", a:"Для сегментации: интересно посмотреть, влияет ли TikTok на 18-летних сильнее, чем на 30-летних, и зависит ли влияние от дохода. Эти данные используются только в агрегированном виде."},
+ {q:"Что такое шкала Лайкерта?", a:"Это вопросы с вариантами «Полностью согласен — скорее согласен — нейтрально — скорее не согласен — полностью не согласен». Они дают более точную картину, чем бинарные «да/нет», и позволяют считать средние значения."},
+ {q:"Какие ограничения у исследования?", a:"<b>1.</b> Выборка самоотборная: проходят те, кто захотел. <b>2.</b> Нет рандомизации. <b>3.</b> Люди могут отвечать социально желаемым образом. <b>4.</b> Данные только с посетителей этого сайта. Поэтому результаты — предварительные и не претендуют на репрезентативность всероссийской выборки."},
+ {q:"Что такое контрольная группа?", a:"Вопрос «Пользуетесь ли вы TikTok?» позволяет выделить тех, кто им не пользуется. Их стиль — «фон», с которым можно сравнить стиль активных пользователей TikTok и оценить чистое влияние платформы."}
+];
+const FAQ_ITEMS = [
+ {q:"Кто увидит мои ответы?", a:"Если вы сняли галочку «Анонимно» и ввели имя — ответы попадают в Google Таблицу проекта. Их видит только администратор. Если галочка стоит — данные никуда не отправляются, результат показывается только вам."},
+ {q:"Можно ли удалить мои данные?", a:"Да. Напишите администратору через форму обратной связи, указав дату прохождения и имя — запись будет удалена из таблицы в течение 7 дней."},
+ {q:"Что такое «портрет стиля»?", a:"Это текстовое описание вашего стиля, которое собирается из ваших ответов. Оно генерируется локально (встроенный алгоритм) или через ИИ (если администратор подключил API-ключ)."},
+ {q:"Почему стилей только 8?", a:"Это самые упоминаемые в TikTok-трендах 2023–2025 годов. Список не претендует на полноту: например, «академия», «гранж-костюм» или «Y3K» — подвиды этих восьми."},
+ {q:"Как вы защищаете данные?", a:"Мы не собираем email, телефон, IP-адрес в открытом виде и другие прямые идентификаторы. В таблице хранятся только имя (если введено), стиль, вердикт и ваши ответы в обезличенном виде."},
+ {q:"Можно ли использовать эти данные в школьном/студенческом проекте?", a:"Да, с указанием источника — сайта TrendScope. Мы будем рады, если вы поделитесь результатами."}
+];
+function buildAccordion(containerId, items){
+  const box = document.getElementById(containerId);
+  items.forEach(it=>{
+    const d = document.createElement('div');
+    d.className = 'acc-item';
+    d.innerHTML = '<div class="acc-head">'+it.q+'</div><div class="acc-body"><p>'+it.a+'</p></div>';
+    d.querySelector('.acc-head').onclick = ()=>d.classList.toggle('open');
+    box.appendChild(d);
+  });
+}
+buildAccordion('methodAccordion', METHOD_ITEMS);
+buildAccordion('faqAccordion', FAQ_ITEMS);
+
+/* ================= ОПРОС ================= */
+const QUESTIONS = [
+ {type:'single', key:'age', t:'Сколько вам лет?', o:['Меньше 18','18–24','25–34','35–44','45+'], scores:{influence:[0,2,2,1,0], demographic:true}},
+ {type:'single', key:'gender', t:'Ваш пол', o:['Женский','Мужской','Предпочитаю не указывать'], demographic:true},
+ {type:'single', key:'usesTikTok', t:'Пользуетесь ли вы TikTok?', o:['Да, каждый день','Да, несколько раз в неделю','Редко','Нет, не пользуюсь'], scores:{influence:[3,2,1,0], control:true}},
+ {type:'single', key:'time', t:'Сколько времени в день вы проводите в TikTok?', o:['Меньше 30 минут','30 минут — час','1–2 часа','Больше 2 часов'], scores:{influence:[0,1,2,3]}},
+ {type:'single', key:'saveVideos', t:'Сохраняете ли вы видео с образами и идеями «что надеть»?', o:['Да, регулярно','Иногда','Почти никогда','Никогда'], scores:{influence:[3,2,1,0]}},
+ {type:'single', key:'wardrobe', t:'Что преобладает в вашем гардеробе?', o:['Оверсайз, худи и кроссовки','Низкая посадка, блеск и мини-длины','Классика: пиджаки и нейтральные тона','Фланель, рваный деним, ботинки','Платья, банты и кружево','Базовые однотонные вещи','Тотал-блэк, деним и металл','Спортивные костюмы и кроссовки'], styleIndex:[0,1,2,3,4,5,6,7]},
+ {type:'single', key:'mood', t:'Как вы одеваетесь по настроению?', o:['Свободно и удобно','Ярко и вызывающе','Сдержанно и дорого-looking','Дерзко и небрежно','Нежно и романтично','Просто и чисто','Мрачно и загадочно','Энергично и динамично'], styleIndex:[0,1,2,3,4,5,6,7]},
+ {type:'single', key:'changedStyle', t:'Меняли ли вы свой стиль после просмотра трендов в TikTok?', o:['Да, несколько раз перестраивал(а) гардероб','Один раз или дважды','Иногда подхватываю отдельные детали','Нет, стиль не менялся'], scores:{influence:[3,2,1,0]}},
+ {type:'single', key:'boughtFromTikTok', t:'Покупали ли вы вещь, которую впервые увидели у TikTok-блогеров?', o:['Да, не один раз','Да, однажды','Думаю об этом','Нет'], scores:{influence:[3,2,1,0]}},
+ {type:'single', key:'speed', t:'Как быстро вы покупаете вещь после того, как увидели её в TikTok?', o:['В течение недели','В течение месяца','Через несколько месяцев','Не покупаю'], scores:{influence:[3,2,1,0]}},
+ {type:'single', key:'source', t:'Откуда вы чаще всего узнаёте о новых трендах?', o:['TikTok','Instagram/Pinterest','Друзья и знакомые','Магазины и витрины','Другое'], scores:{source:true}},
+ {type:'likert', key:'likert', t:'Насколько вы согласны: «Мой стиль одежды сильно изменился под влиянием TikTok»?', o:['Полностью согласен','Скорее согласен','Нейтрально','Скорее не согласен','Полностью не согласен'], scores:{likert:[5,4,3,2,1]}}
+];
+
+let answers = {}, cur = 0, savedProgress = false;
+
+function loadProgress(){
+  const saved = localStorage.getItem('trendscope_progress');
+  if(saved){
+    try{
+      const p = JSON.parse(saved);
+      if(p.answers && Object.keys(p.answers).length > 0){
+        answers = p.answers;
+        cur = p.cur || 0;
+        savedProgress = true;
+        document.getElementById('progressHint').textContent = '↻ У вас есть сохранённый прогресс — вы остановились на вопросе ' + (cur+1) + '.';
+      }
+    }catch(e){}
+  }
+}
+
+function startSurvey(){
+  if(!savedProgress){ answers = {}; cur = 0; }
+  document.getElementById('surveyPanel').classList.remove('hidden');
+  document.getElementById('savePanel').classList.add('hidden');
+  closePanel(); renderQ();
+}
+function renderQ(){
+  const q = QUESTIONS[cur];
+  document.getElementById('qtext').textContent = 'Вопрос ' + (cur+1) + ' из ' + QUESTIONS.length + '. ' + q.t;
+  const pct = Math.round(cur / QUESTIONS.length * 100);
+  document.getElementById('qbar').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '% · ' + (cur+1) + ' / ' + QUESTIONS.length;
+  const box = document.getElementById('qopts'); box.innerHTML = '';
+  const currentVal = answers[q.key];
+  q.o.forEach((opt, i)=>{
+    const b = document.createElement('button');
+    b.className = 'opt' + (currentVal === i ? ' sel' : '');
+    b.textContent = opt;
+    b.onclick = ()=>{
+      answers[q.key] = i;
+      saveProgress();
+      renderQ();
+    };
+    box.appendChild(b);
+  });
+  document.getElementById('nextBtn').textContent = cur === QUESTIONS.length-1 ? 'Завершить ✔' : 'Далее →';
+}
+function saveProgress(){
+  localStorage.setItem('trendscope_progress', JSON.stringify({answers, cur}));
+}
+function prevQ(){ if(cur > 0){ cur--; renderQ(); } }
+function nextQ(){
+  const q = QUESTIONS[cur];
+  if(answers[q.key] === undefined){ alert('Выберите вариант ответа'); return; }
+  if(cur < QUESTIONS.length - 1){ cur++; renderQ(); }
+  else { finishSurvey(); }
+}
+
+function finishSurvey(){
+  localStorage.removeItem('trendscope_progress');
+  savedProgress = false;
+  document.getElementById('qbar').style.width = '100%';
+  document.getElementById('surveyPanel').classList.add('hidden');
+  document.getElementById('savePanel').classList.remove('hidden');
+  const r = computeResult();
+  r.aiText = localAI(r);
+  document.getElementById('resultPanel').classList.remove('hidden');
+  document.getElementById('resultPanel').innerHTML =
+    '<span class="kicker">Ваш результат</span><div class="resname">' + r.style.name + '</div>' +
+    '<img src="' + r.style.img + '" style="width:100%;max-width:380px;border-radius:16px" alt="' + r.style.name + '">' +
+    '<p style="margin-top:16px;line-height:1.7">' + r.aiText + '</p>' +
+    '<p style="margin-top:18px"><b>Влияние TikTok:</b> <span class="tag ' + r.cls + '">' + r.verdict + '</span> — ' + r.score + ' из 12 баллов.</p>' +
+    '<p class="muted" style="margin-top:10px">Вам также близок стиль «' + r.alt.name + '»: ' + r.alt.desc + '</p>' +
+    '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:22px">' +
+      '<button class="btn" onclick="openShare()">📤 Поделиться результатом</button>' +
+      '<button class="btn ghost" onclick="go(\'styles\')">Посмотреть другие стили</button>' +
+    '</div>';
+  window.result = r;
+}
+
+function computeResult(){
+  let influenceScore = 0;
+  QUESTIONS.forEach(q=>{
+    if (q.scores && q.scores.influence && answers[q.key] !== undefined) {
+      influenceScore += q.scores.influence[answers[q.key]] || 0;
+    }
+  });
+  const likert = answers['likert'];
+  if (likert !== undefined) influenceScore += (5 - likert);
+  
+  const wardrobe = answers['wardrobe'] || 0;
+  const mood = answers['mood'] || 0;
+  const mainIdx = (wardrobe + mood) % 2 === 0 ? wardrobe : Math.round((wardrobe + mood) / 2);
+  const main = STYLES[mainIdx] || STYLES[0];
+  const alt = STYLES[(mainIdx + 3) % STYLES.length];
+
+  let verdict, cls;
+  if (influenceScore >= 12){ verdict = 'Влияние сильное'; cls = 'strong'; }
+  else if (influenceScore >= 6){ verdict = 'Влияние заметное'; cls = 'mid'; }
+  else { verdict = 'Влияние слабое или отсутствует'; cls = 'low'; }
+
+  return { style: main, alt, score: influenceScore, verdict, cls, aiText: '' };
+}
+
+function localAI(r){
+  const s = r.style;
+  const intro = {
+    streetwear:'Ваш гардероб держится на свободных силуэтах и городском комфорте',
+    y2k:'Вы тяготеете к глянцу и нарочитой яркости нулевых',
+    oldmoney:'Ваш выбор — спокойная классика, которая никогда не выглядит устаревшей',
+    grunge:'В вас говорит небрежный рок-н-ролл 90-х',
+    coquette:'Вы выбираете нежность, романтику и детали, которые «мило шуршат»',
+    minimalism:'Вы цените чистоту линий и вещи, которые не спорят между собой',
+    dark:'Ваш стиль построен на мрачной выразительности и тотал-блэке',
+    sportchic:'Вы живёте в динамичном ритме и одеваетесь соответственно'
+  }[s.id];
+  const influencePart = r.score >= 12 ? 'влияет очень ощутимо: тренды из ленты уже перестроили большую часть вашего гардероба' :
+                       r.score >= 6 ? 'влияет умеренно: вы подхватываете отдельные детали, но костяк стиля свой' :
+                       'почти не влияет: стиль сложился вне алгоритма';
+  return intro + '. Ваши ответы (' + r.score + ' баллов) показывают, что TikTok на ваш стиль ' + influencePart + '.';
+}
+
+/* ================= СОХРАНЕНИЕ РЕЗУЛЬТАТА ================= */
+function anonToggle(){ document.getElementById('nameBlock').classList.toggle('hidden', document.getElementById('anonBox').checked); }
+
+function saveResult(){
+  const r = window.result; if(!r) return;
+  const anon = document.getElementById('anonBox').checked;
+  if (anon) {
+    document.getElementById('savePanel').classList.add('hidden');
+    alert('Готово! Ваш результат анонимный: он показан выше и не сохранён нигде.');
+    return;
+  }
+  const name = (document.getElementById('nameInput').value.trim() || 'Без имени').slice(0,30);
+  const payload = {
+    login:'', password:'', name: name,
+    style: r.style.name, influence: r.verdict, message: r.aiText,
+    age: QUESTIONS[0].o[answers['age']] || '',
+    gender: QUESTIONS[1].o[answers['gender']] || '',
+    usesTikTok: QUESTIONS[2].o[answers['usesTikTok']] || '',
+    budget: '—',
+    source: QUESTIONS[10].o[answers['source']] || '',
+    speed: QUESTIONS[9].o[answers['speed']] || '',
+    likert: answers['likert'] !== undefined ? QUESTIONS[11].o[answers['likert']] : '',
+    rawAnswers: JSON.stringify(answers)
+  };
+  if (!SCRIPT_URL || SCRIPT_URL === "ВАШ_URL_СКРИПТА_ЗДЕСЬ") { alert('Ошибка: URL скрипта не настроен.'); return; }
+  fetch(SCRIPT_URL, { method:'POST', body: JSON.stringify(payload) })
+    .then(res=>res.json())
+    .then(res=>{
+      if (res.result === 'success') {
+        document.getElementById('savePanel').classList.add('hidden');
+        alert('Сохранено в облако! В статистике админов появилась ваша запись.');
+      } else alert('Ошибка сохранения: ' + (res.error || 'неизвестная ошибка'));
+    })
+    .catch(err=>{ alert('Ошибка сети. Проверьте соединение.'); console.error(err); });
+}
+
+/* ================= SHARE ================= */
+function openShare(){
+  const r = window.result; if(!r) return;
+  document.getElementById('shareStyleName').textContent = r.style.name;
+  document.getElementById('shareInfluence').textContent = 'Влияние TikTok: ' + r.verdict + ' (' + r.score + '/12)';
+  document.getElementById('shareModal').classList.add('show');
+}
+function closeShare(){ document.getElementById('shareModal').classList.remove('show'); }
+function downloadShare(){
+  const node = document.getElementById('sharePreview');
+  html2canvas(node, { scale: 2, backgroundColor: null }).then(canvas=>{
+    const link = document.createElement('a');
+    link.download = 'trendscope-result.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  });
+}
+function copyShareText(){
+  const r = window.result; if(!r) return;
+  const text = 'Мой стиль по версии TrendScope — «' + r.style.name + '». Влияние TikTok: ' + r.verdict + ' (' + r.score + '/12). Пройди опрос и ты: ' + window.location.href;
+  navigator.clipboard.writeText(text).then(()=>alert('Текст скопирован!'));
+}
+
+/* ================= ОБРАТНАЯ СВЯЗЬ ================= */
+function openFeedback(){
+  if (FEEDBACK_FORM_ID) {
+    window.open('https://docs.google.com/forms/d/e/' + FEEDBACK_FORM_ID + '/viewform', '_blank');
+  } else {
+    alert('Форма обратной связи пока не настроена. Напишите администратору.');
+  }
+}
+
+/* ================= АДМИН ================= */
+const ADM = { login:'admin', pass:'style2026' };
+function adminLogin(){
+  if (document.getElementById('login').value.trim() === ADM.login && document.getElementById('pass').value === ADM.pass) {
+    document.getElementById('loginPanel').classList.add('hidden');
+    document.getElementById('dash').classList.remove('hidden');
+    renderDash();
+  } else alert('Неверный логин или пароль');
+}
+function adminLogout(){ document.getElementById('loginPanel').classList.remove('hidden'); document.getElementById('dash').classList.add('hidden'); }
+
+function renderDash(){
+  if (!SCRIPT_URL || SCRIPT_URL === "ВАШ_URL_СКРИПТА_ЗДЕСЬ") {
+    document.getElementById('statGrid').innerHTML = '<div class="stat" style="grid-column:1/-1;text-align:center;color:red">Ошибка: URL скрипта не настроен.</div>';
+    return;
+  }
+  fetch(SCRIPT_URL + '?action=getStats')
+    .then(res=>res.json())
+    .then(data=>{
+      const total = data.total;
+      const influenced = data.influenced;
+      const styles = data.styles;
+      document.getElementById('statGrid').innerHTML =
+        '<div class="stat"><b>' + total + '</b><span>Всего прохождений</span></div>' +
+        '<div class="stat"><b>' + influenced + '</b><span>Под влиянием TikTok</span></div>' +
+        '<div class="stat"><b>' + (total ? Math.round(influenced/total*100) + '%' : '—') + '</b><span>Доля влияния</span></div>' +
+        '<div class="stat"><b>' + Object.keys(styles).length + '</b><span>Разных стилей</span></div>';
+      const t = document.getElementById('resultsTable');
+      let html = '<tr><th>Дата</th><th>Имя</th><th>Стиль</th><th>Влияние</th><th>Возраст</th></tr>';
+      if (data.records && data.records.length) {
+        data.records.forEach(d=>{
+          html += '<tr><td>' + new Date(d.date).toLocaleString('ru-RU') + '</td><td>' + d.name + '</td><td>' + d.style + '</td><td>' + d.influence + '</td><td>' + (d.age || '—') + '</td></tr>';
+        });
+      } else html += '<tr><td colspan="5" style="text-align:center;color:#9ca3af">Пока нет данных</td></tr>';
+      t.innerHTML = html;
+      draw('chartStyles', 'pie', styles);
+      const infCount = {'Сильное':0,'Заметное':0,'Слабое/нет':0};
+      (data.records || []).forEach(d=>{
+        if (d.influence === 'Влияние сильное') infCount['Сильное']++;
+        else if (d.influence === 'Влияние заметное') infCount['Заметное']++;
+        else infCount['Слабое/нет']++;
+      });
+      draw('chartInfluence', 'bar', infCount);
+      if (data.heatmap) drawHeatmap(data.heatmap);
+      if (data.sources) draw('chartSources', 'doughnut', data.sources);
+    })
+    .catch(err=>{ alert('Не удалось загрузить статистику.'); console.error(err); });
+}
+
+function draw(id, type, obj){
+  const el = document.getElementById(id); if(!el) return;
+  const ctx = el.getContext('2d');
+  if (window['c_' + id]) window['c_' + id].destroy();
+  window['c_' + id] = new Chart(ctx, {
+    type, data: { labels: Object.keys(obj), datasets: [{ data: Object.values(obj),
+      backgroundColor: ['#fe2c55','#25f4ee','#f59e0b','#8b5cf6','#10b981','#3b82f6','#ef4444','#64748b','#f97316','#ec4899'] }] },
+    options: { responsive: true, plugins: { legend: { display: (type==='pie' || type==='doughnut'), position: 'bottom' } } }
+  });
+}
+
+function drawHeatmap(heat){
+  const el = document.getElementById('chartHeatmap'); if(!el) return;
+  const ctx = el.getContext('2d');
+  if (window['c_heat']) window['c_heat'].destroy();
+  const labels = heat.labels;
+  const data = heat.values;
+  window['c_heat'] = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [
+        { label: 'Сильное', data: data.map(v=>v[0]), backgroundColor: '#fe2c55' },
+        { label: 'Заметное', data: data.map(v=>v[1]), backgroundColor: '#f59e0b' },
+        { label: 'Слабое/нет', data: data.map(v=>v[2]), backgroundColor: '#10b981' }
+      ]
+    },
+    options: {
+      responsive: true, scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } },
+      plugins: { legend: { position: 'bottom' } }
+    }
+  });
+}
+
+function exportCSV(){ alert('Экспорт теперь доступен через Google Таблицу (Файл → Скачать → CSV).'); }
+function clearData(){ alert('Очистка данных теперь производится в Google Таблице (выделите строки и удалите).'); }
+
+loadProgress();
+go('home');
+</script>
+</body>
+</html>
